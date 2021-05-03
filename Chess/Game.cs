@@ -12,7 +12,7 @@ namespace Chess
     {
         public const int IMAGE_SIZE = 64;
         Form1 GameForm;
-        public Piece[,] tileMap { get; set; }
+        public  Piece[,] tileMap { get; set; }
         public HashSet<Point> AvaliblePositions { get; set; }
         public Piece SelectedPiece { get; set; }
 
@@ -23,7 +23,11 @@ namespace Chess
             GameForm = gameForm;
             tileMap = new Piece[8, 8];
             //tileMap[0, 0] = new Piece(Properties.Resources.b_bishop_png_shadow_128px,new Point(0,0));
-            tileMap[0, 0] = new Piece(Piece.COLOR.WHITE,Piece.TYPE.BISHOP,new Point(0,0));
+            tileMap[6, 6] = new Piece(Piece.COLOR.WHITE,Piece.TYPE.PAWN,new Point(6,6));
+            tileMap[6, 6].Board = this;
+
+            tileMap[5, 7] = new Piece(Piece.COLOR.BLACK,Piece.TYPE.KNIGHT,new Point(7,5));
+            tileMap[5, 7].Board = this;
 
             AvaliblePositions = new HashSet<Point>();
         }
@@ -43,10 +47,7 @@ namespace Chess
 
 
             }
-            else {
-                SelectedPiece = null;
-                
-            }
+            SelectedPiece = null;
             AvaliblePositions.Clear();
 
         }
@@ -78,20 +79,28 @@ namespace Chess
                 }
             }
         }
-        public void changePos(Point point) {
-            tileMap[0, 0].Position = point;
-        }
         public void draw(Graphics g) {
+            //draw checkerd board
             loadBlank(g);
-            foreach(Piece piece in tileMap) {
+            //draw selected square
+            if(SelectedPiece != null) {
+                Rectangle rect = new Rectangle(new Point(SelectedPiece.Position.X * IMAGE_SIZE, SelectedPiece.Position.Y * IMAGE_SIZE), new Size(64, 64));
+                g.FillRectangle(new SolidBrush(Color.FromArgb(148, 123, 50, 100)),rect);
+            }
+            //draw avalible moves
+            foreach (Point point in AvaliblePositions) {
+                g.FillEllipse(new SolidBrush(Color.FromArgb(148, 123, 50)), new Rectangle(point.X * IMAGE_SIZE + 20, point.Y * IMAGE_SIZE + 20, 24, 24));
+            }
+
+            //draw pieces
+            foreach (Piece piece in tileMap) {
                 if (piece == null) continue;
 
                 piece.draw(g);
-                piece.Position = new Point(piece.Position.X, piece.Position.Y);
+                //piece.Position = new Point(piece.Position.X, piece.Position.Y);
             }
-            foreach(Point point in AvaliblePositions) {
-                g.FillEllipse(new SolidBrush(Color.Bisque),new Rectangle(point.X * IMAGE_SIZE + 20,point.Y * IMAGE_SIZE + 20, 24,24));
-            }
+            
+
 
 
         }

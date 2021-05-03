@@ -30,6 +30,10 @@ namespace Chess
         Bitmap image;
         public Point Position { get; set; }
 
+        MoveSet moveSet;
+
+        public Board Board { get; set; }
+
 
 
 
@@ -39,55 +43,51 @@ namespace Chess
             this.Type = type;
 
             generateSprite();
+
+            moveSet = setMoveSet();
+            moveSet.MyPiece = this;
         }
         public void generateSprite() {
             if(Color == COLOR.WHITE) {
                 switch (Type) {
-                    case TYPE.BISHOP: image = Properties.Resources.b_bishop_png_shadow_128px;break;
+                    case TYPE.PAWN: image = Properties.Resources.w_pawn_png_shadow_128px;break;
+                    case TYPE.KNIGHT: image = Properties.Resources.w_knight_png_shadow_128px;break;
+                    case TYPE.BISHOP: image = Properties.Resources.w_bishop_png_shadow_128px;break;
+                    case TYPE.ROOK: image = Properties.Resources.w_rook_png_shadow_128px;break;
+                    case TYPE.QUEEN: image = Properties.Resources.w_queen_png_shadow_128px;break;
+                    case TYPE.KING: image = Properties.Resources.w_king_png_shadow_128px;break;
                 }
             }
+            else {
+                switch (Type) {
+                    case TYPE.PAWN: image = Properties.Resources.b_pawn_png_shadow_128px; break;
+                    case TYPE.KNIGHT: image = Properties.Resources.b_knight_png_shadow_128px; break;
+                    case TYPE.BISHOP: image = Properties.Resources.b_bishop_png_shadow_128px; break;
+                    case TYPE.ROOK: image = Properties.Resources.b_rook_png_shadow_128px; break;
+                    case TYPE.QUEEN: image = Properties.Resources.b_queen_png_shadow_128px; break;
+                    case TYPE.KING: image = Properties.Resources.b_king_png_shadow_128px; break;
+                }
+            }
+        }
+        private MoveSet setMoveSet() {
+            switch (Type) {
+                case TYPE.PAWN: return new PawnMoveSet(); 
+                case TYPE.BISHOP: return new BishopMoveSet(); 
+                case TYPE.KNIGHT: return new KnightMoveSet();
+                case TYPE.ROOK: return new RookMoveSet();
+                case TYPE.QUEEN: return new QueenMoveSet(); 
+                case TYPE.KING: return new KnightMoveSet();
+            }
+            return null;
         }
         public void draw(Graphics g) {
             g.DrawImage(image, Position.X * Game.IMAGE_SIZE , Position.Y * Game.IMAGE_SIZE, Game.IMAGE_SIZE, Game.IMAGE_SIZE);
         }
         public HashSet<Point> getMoves() {
-            HashSet<Point> set = new HashSet<Point>();
-            set.Add(new Point(1,0));
-            set.Add(new Point(1,1));
-            set.Add(new Point(2,1));
 
-            return set;
+            return moveSet.GenerateMoveSet(Position);
         }
     }
 
-    public abstract class MoveSet
-    {
-        public Piece myPiece;
-        protected HashSet<Point> set;
-
-        protected Piece[,] getTileMap() {
-            return null;
-            //return myPiece.Board.getTileMap();
-        }
-
-        public MoveSet() { set = new HashSet<Point>(); }
-
-        public abstract HashSet<Point> GenerateMoveSet(Point position);
-
-
-        protected bool isOutOfBoundsCheck(Point vec) {
-            if (vec.X < 0 || vec.X >= getTileMap().GetLength(1)) return true;
-            if (vec.Y < 0 || vec.Y >= getTileMap().GetLength(0)) return true;
-            if (getTileMap()[vec.Y, vec.X] != null && myPiece.Color == getTileMap()[vec.Y, vec.X].Color) return true;
-
-
-            return false;
-        }
-        protected bool enemyCheck(Point v) {
-            Piece tile = getTileMap()[v.Y, v.X];
-            if (tile != null && tile.Type != Piece.TYPE.NONE) return true;
-
-            return false;
-        }
-    }
+    
 }
