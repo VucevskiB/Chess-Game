@@ -12,45 +12,59 @@ namespace Chess
     {
         public const int IMAGE_SIZE = 64;
         Form1 GameForm;
-        public  Piece[,] tileMap { get; set; }
+        public  Piece[,] tileMap { get { return MainBoard.TileMap; } set { MainBoard.TileMap = value; } }
         public HashSet<Point> AvaliblePositions { get; set; }
         public Piece SelectedPiece { get; set; }
 
-        public bool WhitesTurn;
+        public bool WhitesTurn = true;
+
+        public Board MainBoard { get; set; }
+
+        public ChessAi ChessEnemy { get; set; }
+        private Task findMove;
+
 
 
         public Game(Form1 gameForm) {
             GameForm = gameForm;
-            tileMap = new Piece[8, 8];
-            //tileMap[0, 0] = new Piece(Properties.Resources.b_bishop_png_shadow_128px,new Point(0,0));
-            tileMap[6, 6] = new Piece(Piece.COLOR.WHITE,Piece.TYPE.PAWN,new Point(6,6));
-            tileMap[6, 6].Board = this;
+            MainBoard = new Board();
 
-            tileMap[5, 7] = new Piece(Piece.COLOR.BLACK,Piece.TYPE.KNIGHT,new Point(7,5));
-            tileMap[5, 7].Board = this;
 
             AvaliblePositions = new HashSet<Point>();
+
+            ChessEnemy = new ChessAi(this);
+        }
+        public double getEvaluation() {
+            return MainBoard.Evaluation;
         }
         public void onBoardClick(int x, int y) {
+            if (findMove != null && findMove.IsCompleted)
+                findMove = null;
+
             if (SelectedPiece == null) {
                 selectPiece(x, y);
                 return;
             }
 
             if(checkIfMoveValid(new Point(x, y))) {
-                Piece copy = SelectedPiece;
-                tileMap[copy.Position.Y, copy.Position.X] = null;
-                tileMap[y, x] = copy;
-                tileMap[y, x].Position = new Point(x, y);
 
-
-
+                makeMove(SelectedPiece.Position, new Point(x, y));
 
             }
             SelectedPiece = null;
             AvaliblePositions.Clear();
 
         }
+        public void makeMove(Point from , Point to) {
+            MainBoard.makeMove(from, to);
+            WhitesTurn = MainBoard.whitesTurn;
+
+            if (WhitesTurn == false && findMove == null) {
+                findMove = ChessEnemy.getMove(MainBoard);
+            }
+            GameForm.GameBox.Invalidate();
+        }
+
         private bool checkIfMoveValid(Point clickPos) {
             return AvaliblePositions.Contains(clickPos);
         }
@@ -59,6 +73,11 @@ namespace Chess
                 AvaliblePositions.Clear();
                 return;
             }
+            if((tileMap[y, x].Color == Piece.COLOR.WHITE) != (MainBoard.whitesTurn == true)) {
+                AvaliblePositions.Clear();
+                return;
+            }
+
             SelectedPiece = tileMap[y, x];
             drawSuggestion();
         }

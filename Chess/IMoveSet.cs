@@ -13,7 +13,7 @@ namespace Chess
         public HashSet<Point> Set { get; set; }
 
         protected Piece[,] getTileMap() {
-            return MyPiece.Board.tileMap;
+            return MyPiece.Board.TileMap;
         }
 
 
@@ -51,7 +51,7 @@ namespace Chess
                     Set.Add(movPos);
 
 
-            //Double MoveSet
+            //Double Move forward
             if (position.Y - dir == 0 || position.Y - dir == getTileMap().GetLength(0) - 1) {
                 vec = new Point(0, dir * 2);
                 movPos = new Point(vec.X + position.X,vec.Y + position.Y);
