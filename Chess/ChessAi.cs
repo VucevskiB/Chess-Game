@@ -11,14 +11,20 @@ namespace Chess
     {
         public Move BestMove;
         public Game game;
+        bool isAIBlack;
 
-        public ChessAi(Game game) {
+        public ChessAi(Game game, Piece.COLOR enemyColor) {
+            if (enemyColor == Piece.COLOR.BLACK)
+                isAIBlack = true;
+            else
+                isAIBlack = false;
+
             this.game = game;
         }
 
         public Task getMove(Board board) {
             BestMove = null;
-            Task task = Task.Factory.StartNew(() => startSearch(3, true, board), TaskCreationOptions.LongRunning);
+            Task task = Task.Factory.StartNew(() => startSearch(3, isAIBlack, board), TaskCreationOptions.LongRunning);
             return task;
 
         }
@@ -45,7 +51,11 @@ namespace Chess
 
                 }
             }
-            posibleMoves.Sort();
+            if (blacksTurn == true)
+                posibleMoves.Sort((a, b) => a.CompareTo(b));
+            else
+                posibleMoves.Sort((a, b) => b.CompareTo(a));
+
             //Move newMove = getRandomMove(posibleMoves);
             Move newMove = posibleMoves.First();
             if (BestMove == null || newMove.value < BestMove.value) {

@@ -23,16 +23,39 @@ namespace Chess
         public ChessAi ChessEnemy { get; set; }
         private Task findMove;
 
+        public bool IsAIEnabled { get; set; }
+
+        public Piece.COLOR Player1 { get; set; }
+        public Piece.COLOR Player2 { get; set; }
+
+        bool isPlayer1Turn;
+
 
 
         public Game(Form1 gameForm) {
             GameForm = gameForm;
+            IsAIEnabled = GameForm.ActivateAI;
+            Player1 = GameForm.Player1Color;
+            Player2 = GameForm.Player2Color;
+            if (Player1 == Piece.COLOR.WHITE)
+                isPlayer1Turn = true;
+            else
+                isPlayer1Turn = false;
+
+
             MainBoard = new Board();
 
 
             AvaliblePositions = new HashSet<Point>();
 
-            ChessEnemy = new ChessAi(this);
+            
+            if (IsAIEnabled) {
+                ChessEnemy = new ChessAi(this,Player2);
+
+                if(Player2 == Piece.COLOR.WHITE)
+                    findMove = ChessEnemy.getMove(MainBoard);
+            }
+
         }
         public double getEvaluation() {
             return MainBoard.Evaluation;
@@ -58,8 +81,9 @@ namespace Chess
         public void makeMove(Point from , Point to) {
             MainBoard.makeMove(from, to);
             WhitesTurn = MainBoard.whitesTurn;
+            isPlayer1Turn = !isPlayer1Turn;
 
-            if (WhitesTurn == false && findMove == null) {
+            if (IsAIEnabled && !isPlayer1Turn && findMove == null) {
                 findMove = ChessEnemy.getMove(MainBoard);
             }
             GameForm.GameBox.Invalidate();

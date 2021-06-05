@@ -20,9 +20,13 @@ namespace Chess
         public int TimeGiven { get; set; }
         private int blacksTime;
         private int whitesTime;
+
+        public bool ActivateAI { get; set; }
+        public Piece.COLOR Player1Color { get; set; }
+        public Piece.COLOR Player2Color { get; set; }
+
         public Form1() {
             InitializeComponent();
-            game = new Game(this);
 
             this.DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
@@ -45,6 +49,13 @@ namespace Chess
             WhitePointsTxt.Text = "";
             BlackPointsTxt.Text = "";
 
+            //OPTIONS
+            Player2Color = Piece.COLOR.WHITE;
+            Player1Color = Piece.COLOR.BLACK;
+
+            ActivateAI = true;
+
+            game = new Game(this);
 
         }
         public void gamePanel_Paint(object sender, PaintEventArgs e) {
