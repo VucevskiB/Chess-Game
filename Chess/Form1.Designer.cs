@@ -152,7 +152,7 @@ namespace Chess
             this.Controls.Add(this.GameBox);
             this.Controls.Add(this.ResignButton);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Chess";
             ((System.ComponentModel.ISupportInitialize)(this.GameBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.whiteGreenCheck)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.blackGreenCheck)).EndInit();

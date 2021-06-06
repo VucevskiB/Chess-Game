@@ -25,7 +25,12 @@ namespace Chess
         public Piece.COLOR Player1Color { get; set; }
         public Piece.COLOR Player2Color { get; set; }
 
-        public Form1() {
+        Piece.COLOR AICOLOR;
+
+        public Form1(bool isAIActive, int color) {
+            ActivateAI = isAIActive;
+            setColors(color);
+
             InitializeComponent();
 
             this.DoubleBuffered = true;
@@ -49,19 +54,33 @@ namespace Chess
             WhitePointsTxt.Text = "";
             BlackPointsTxt.Text = "";
 
-            //OPTIONS
-            Player2Color = Piece.COLOR.WHITE;
-            Player1Color = Piece.COLOR.BLACK;
-
-            ActivateAI = true;
+            if (ActivateAI)
+                AICOLOR = Player2Color;
 
             game = new Game(this);
 
+        }
+        public void setColors(int i) { 
+            if(i == 1) {
+                Player1Color = Piece.COLOR.BLACK;
+                Player2Color = Piece.COLOR.WHITE;
+            }
+            else {
+                Player1Color = Piece.COLOR.WHITE;
+                Player2Color = Piece.COLOR.BLACK;
+            }
         }
         public void gamePanel_Paint(object sender, PaintEventArgs e) {
             game.draw(e.Graphics);
             setScoreCount();
             setTurnText();
+
+            if(game.WhitesTurn == (AICOLOR == Piece.COLOR.WHITE) && ActivateAI) {
+                ResignButton.Enabled = false;
+            }
+            else {
+                ResignButton.Enabled = true;
+            }
             //GameBox.Invalidate();
             //e.Graphics.Clear(Color.White);
             //e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -94,7 +113,9 @@ namespace Chess
             
         }
         private void Form1_MouseClick(object sender, MouseEventArgs e) {
-            game.onBoardClick(e.X / Game.IMAGE_SIZE, e.Y / Game.IMAGE_SIZE);
+            if (!(game.WhitesTurn == (AICOLOR == Piece.COLOR.WHITE) && ActivateAI)) {
+                game.onBoardClick(e.X / Game.IMAGE_SIZE, e.Y / Game.IMAGE_SIZE);
+            }
             //game.changePos(new Point(e.X / Game.IMAGE_SIZE, e.Y / Game.IMAGE_SIZE));
             GameBox.Invalidate();
             setScoreCount();
@@ -115,7 +136,19 @@ namespace Chess
         }
 
         private void button1_Click(object sender, EventArgs e) {
-            MessageBox.Show("sdadsa");
+            string text = "Black has lost";
+            if (game.WhitesTurn) {
+                text = "White has lost";
+            }
+
+            var popUp = MessageBox.Show(text);
+            if(popUp == DialogResult.OK) {
+                var game = new Chess();
+                var t = new Thread(() => Application.Run(new Chess()));
+                t.Start();
+
+                this.Close();
+            }
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
